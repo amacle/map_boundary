@@ -7,4 +7,4 @@ An effective way to achieve this is to generate an inset [parallel curve](https:
 
 Interactive demo: https://jsfiddle.net/Tropicarnage/og90s6Le/
 
-(Note that the demo doesn't presently work in Firefox, as the needed SVGGeometryElement hit-testing functions have yet to be implemented into the browser.)
+(Note that the demo presently doesn't work in Firefox, as the needed SVGGeometryElement hit-testing functions have yet to be implemented into the browser.)
