@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+var innerPoints = [];
+var N = 2000;
+var VERTICAL_OFFSET = 125;
+
+function precompute(){
+	var t0 = performance.now(); //Begin timing data
+
+	var innerMap = document.getElementById("path3711-6");
+	var svg = document.getElementById('svg8');
+	var NS = svg.getAttribute('xmlns');
+  
+	var points = [];
+	var subdivision = innerMap.getTotalLength()/N;
+  
+	for(var i = 0; i < N; i++){
+		var point = innerMap.getPointAtLength(i*subdivision);
+		point.y -= VERTICAL_OFFSET; //Account for vertical offset
+		innerPoints.push(point);
+	}
+  
+	var t1 = performance.now(); //End timing data
+	console.log("Precomputation time: " + (t1 - t0) + "ms");
+}
+
+window.onmousemove = function(e) {
+	//Transform client (window) coordinates to SVG coordinates
+	var svg = document.getElementById("svg8");
+	var transformPoint = svg.createSVGPoint(); //NECESSARY
+	transformPoint.x = e.clientX;
+	transformPoint.y = e.clientY;
+	transformPoint = transformPoint.matrixTransform(svg.getScreenCTM().inverse());
+  
+	//Declare a new x and y from the transformed coordinates
+	var x = transformPoint.x;
+	var y = transformPoint.y;
+  
+	//Update position of the cursor-tracking circle
+	var cursorcirc = document.getElementById("cursorcirc");
+	cursorcirc.setAttributeNS(null, 'cx', transformPoint.x);
+	cursorcirc.setAttributeNS(null, 'cy', transformPoint.y);
+  
+	//Make the "projection" (player) circle visible if it's not visible already
+	var projcirc = document.getElementById("projcirc");
+	projcirc.setAttributeNS(null, 'r', 7);
+  
+	//Determine whether or not projection is needed
+	var innerMap = document.getElementById("path3711-6");
+	var collisionPt = svg.createSVGPoint();
+	collisionPt.x = x;
+	collisionPt.y = y+VERTICAL_OFFSET;
+  
+	if(innerMap.isPointInFill(collisionPt) || innerMap.isPointInStroke(collisionPt)){
+		//Projection not needed - have the player match the cursor's position
+		projcirc.setAttributeNS(null, 'cx', x);
+		projcirc.setAttributeNS(null, 'cy', y);
+  
+		//Output message
+		var messageIB = "Coordinates (Rounded): (" + Math.round(x) + "," + Math.round(y) + ")";
+		document.getElementById("logger").innerHTML = messageIB;
+	}
+	else{
+		//Projection needed - search for nearest projection point
+		var index = 0;
+		var minDistance = Infinity;
+  
+		//Linear search
+		for(var i = 0; i < N; i++){
+			var dx = x - innerPoints[i].x;
+			var dy = y - innerPoints[i].y;
+			var length =  Math.sqrt(dx*dx + dy*dy);
+    
+			if(length < minDistance){
+				minDistance = length;
+			index = i;
+			}
+		}
+    
+		//Update position of "projection" (player) circle
+		projcirc.setAttributeNS(null, 'cx', innerPoints[index].x);
+		projcirc.setAttributeNS(null, 'cy', innerPoints[index].y);
+  
+		//Output message
+		var messageOOB = "(OOB) -> Projected coordinates: (" + innerPoints[index].x + "," + innerPoints[index].y + ")";
+		document.getElementById("logger").innerHTML = messageOOB;
+	}
+}
+</script>
+
+</head>
+<body>
+    <!DOCTYPE html>
+<html>
+<body onload="precompute()">
+
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 400 150"
+   width="600"
+   height="280">
+  <defs
+     id="defs2" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-125)"
+     id="layer1">
+    <path
+       id="path3711"
+       d="m 162.49987,134.23284 c 0,0 -68.688268,-23.78699 -104.502384,5.87993 -35.814116,29.66691 -6.147199,51.04848 -9.354433,59.33383 -3.207235,8.28536 -22.985179,102.36423 21.114292,75.10274 44.099475,-27.26149 175.596075,-23.51972 192.968595,-12.56167 17.37253,10.95805 44.36675,-39.28862 44.36675,-39.28862 0,0 47.84124,-97.28611 -5.61266,-77.77543 -53.45391,19.51067 -138.98016,-10.69078 -138.98016,-10.69078 z"
+       style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       id="path3711-6"
+       d="m 104.33789,133.13281 c -21.259381,0.18488 -45.236939,9.14601 -54.785156,29.78321 -4.263203,10.58855 2.441549,20.73904 6.47461,30.10156 2.419876,11.07155 -4.319496,21.47855 -4.562046,32.40411 -2.17655,14.75587 -4.166189,30.82755 2.069858,44.89081 5.774734,3.28767 11.230325,-3.29127 16.500469,-5.10621 25.276512,-12.37974 53.843735,-15.31621 81.479205,-18.05573 32.48872,-2.23885 65.33551,-2.03069 97.60626,2.55842 6.91005,0.9146 13.53856,4.33864 20.17579,5.31446 10.12241,-3.63698 15.47011,-13.90798 21.93164,-21.81641 14.379,-21.92842 24.1616,-46.74761 27.45507,-72.66797 0.9298,-4.77227 -0.96825,-11.8314 -7.40234,-9.88867 -9.39786,1.48719 -17.9649,6.37881 -27.61523,6.85742 -44.11252,6.80716 -88.33512,-4.93552 -130.31836,-17.48633 -15.93145,-4.37743 -32.31982,-7.35137 -49.00977,-6.88867 z"
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+  </g>
+  <circle cx = "0" cy = "0" id = "projcirc"
+  style="fill:rgb(255,0,0);fill-opacity:0;stroke:rgb(255,0,0);stroke-width:1"
+  pointer-events="none" />
+  <circle cx = "0" cy = "0" r = "1" id = "cursorcirc"
+  style="fill:rgb(0,255,0);stroke:rgb(0,255,0);stroke-width:1"
+  pointer-events="none"/>
+</svg>
+
+<p id="logger">Move cursor onto screen to begin</p>
+
+</body>
+</html>
