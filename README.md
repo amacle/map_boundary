@@ -6,3 +6,5 @@ Here, the "player" shape is a circle that follows the mouse cursor, and the "map
 An effective way to achieve this is to generate an inset [parallel curve](https://en.wikipedia.org/wiki/Parallel_curve) one player-radius away from the original map path. If the mouse cursor is inside of the offset shape, the player shape can follow the cursor normally. If the mouse cursor is outside of the offset shape, we instead have the player shape snap to the nearest point on the offset map relative to the mouse cursor.
 
 Interactive demo: https://jsfiddle.net/Tropicarnage/og90s6Le/
+
+(Note that the demo doesn't presently work in Firefox, as the needed SVGGeometryElement hit-testing functions have yet to be implemented into the browser.)
